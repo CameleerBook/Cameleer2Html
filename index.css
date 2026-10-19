@@ -1,0 +1,83 @@
+body {
+  margin: 0;
+  padding: 2rem;
+  background: #f5f7fa;
+  color: #24292f;
+  font-family: system-ui, sans-serif;
+}
+
+.title {
+  max-width: 1000px;
+  margin: 0 auto;
+  /*border-bottom: 1px solid #d8dee4;*/
+  border-bottom: 1px solid black;
+}
+
+.title h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
+
+pre {
+  box-sizing: border-box;
+  max-width: 1000px;
+  margin: 1.5rem auto;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono",
+                Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.55;
+  tab-size: 2;
+  -moz-tab-size: 2;
+  white-space: pre;
+}
+
+.info {
+  max-width: 1000px;
+  margin: 1.5rem auto 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid black;
+  /*border-top: 1px solid #d8dee4;*/
+  color: #57606a;
+  font-size: 0.875rem;
+}
+
+.keyword {
+  color: #cf222e;
+  font-weight: 600;
+  /* red */
+}
+
+.logical {
+  color: #bc6c00;
+  /* #d87b6b */
+}
+
+.contract {
+  color: #0550ae;
+  /* #1069B3 */
+}
+
+.comment {
+  color: #6e7781;
+  font-style: italic;
+  /* #666666 */
+}
+
+.string {
+  color: #0a7f62;
+}
+
+.number {
+  color: #8c959f;
+  display: inline-block;
+  width: 3ch;
+  text-align: right;
+  margin-right: 1ch;
+  user-select: none;
+}

@@ -25,27 +25,10 @@
 
   let () =
     print "<!DOCTYPE html>";
-    print "<html><head><title>%s</title><style>" title;
-    print "span {tab-size: 2;} ";
-    print ".logical { color:rgb(244, 157, 55); } "; (* #d87b6b, rgb(226, 124, 106) *)
-    print ".keyword { color: red; } ";
-    print ".contract { color: #1069B3; } "; (* #1069B3 *) (* #2177bf *)
-    print ".comment { color: #666666; } "; (* #666666 *)
-    print ".number { color: black; }";
-    print ".info { border-top: 1px solid black; }";
-    print ".title { border-bottom: 1px solid black; }";
-    print "</style></head><body><div class=\"title\">";
-    print "<h2>%s<h2></div><pre>" title
-
-(*
-    print "</pre>\n";
-    print "<div class=\"info\">\n";
-    print "<p>%s<a href=\"%s\">%s</a><p>\n" info_text url url_name;
-    print "</div>\n";
-    print "</body></html>\n";
-    close_out cout
-
-*)
+    print "<head><link rel=\"stylesheet\" href=\"index.css\"><title>%s</title></head>" title;
+    print "<body>";
+    print "<div class=\"title\"><h2>%s</h2></div>" title;
+    print "<pre>"
 
   let count = ref 0
   let newline () = 

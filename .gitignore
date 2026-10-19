@@ -29,8 +29,8 @@ setup.log
 _opam/
 
 # Example files
-example.ml
-example.ml.html
+*.ml
+*.html
 
 # Compiled lexer
 cameleer2html
