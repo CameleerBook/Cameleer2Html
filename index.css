@@ -77,7 +77,8 @@ pre {
   color: #8c959f;
   display: inline-block;
   width: 3ch;
-  text-align: right;
   margin-right: 1ch;
   user-select: none;
+  text-align: right;
+  font-weight: normal;
 }

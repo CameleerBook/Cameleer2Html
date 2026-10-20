@@ -33,7 +33,7 @@
   let count = ref 0
   let newline () = 
     if !print_line_numbers then begin
-      incr count; print "\n<span class=\"number\">%3d</span>: " !count
+      incr count; print "\n<span class=\"number\">%3d</span> " !count
     end
     else print "\n"
   let () = newline ()
@@ -77,6 +77,7 @@ rule scan = parse
       end 
       else print "%s" s; scan lexbuf }
   | "<"    { print "&lt;"; scan lexbuf }
+  | ">"    { print "&gt;"; scan lexbuf }
   | "&"    { print "&amp;"; scan lexbuf }
   | "\n"   { newline (); scan lexbuf }
   | '"'    { print "\""; string lexbuf; scan lexbuf }
@@ -93,6 +94,7 @@ and contract = parse
   | "\n"   { newline (); contract lexbuf }
   | '"'    { print "\""; string lexbuf; contract lexbuf }
   | "<"    { print "&lt;"; contract lexbuf }
+  | ">"    { print "&gt;"; contract lexbuf }
   | "&"    { print "&amp;"; contract lexbuf }
   | "'\"'"
   | _ as s { print "%s" s; contract lexbuf }
@@ -103,12 +105,14 @@ and comment = parse
   | "\n"   { newline (); comment lexbuf }
   | '"'    { print "\""; string lexbuf; comment lexbuf }
   | "<"    { print "&lt;"; comment lexbuf }
+  | ">"    { print "&gt;"; comment lexbuf }
   | "&"    { print "&amp;"; comment lexbuf }
   | "'\"'"
   | _ as s { print "%s" s; comment lexbuf }
 and string = parse
   | '"'    { print "\"" }
   | "<"    { print "&lt;"; string lexbuf }
+  | ">"    { print "&gt;"; string lexbuf }
   | "&"    { print "&amp;"; string lexbuf }
   | "\\" _
   | _ as s { print "%s" s; string lexbuf }
