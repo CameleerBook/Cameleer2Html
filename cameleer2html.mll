@@ -33,7 +33,7 @@
   let count = ref 0
   let newline () = 
     if !print_line_numbers then begin
-      incr count; print "\n<span class=\"number\">%3d</span> " !count
+      incr count; print "\n<span class=\"number\">%d</span> " !count
     end
     else print "\n"
   let () = newline ()
