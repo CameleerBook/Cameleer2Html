@@ -1,5 +1,7 @@
 (executable
  (name cameleer2html)
+ (public_name cameleer2html)
+ (package cameleer2html)
  (libraries html_lib))
 
 (ocamllex cameleer2html)
