@@ -7,16 +7,6 @@ type t = {
   name: string;
 }
 
-let file = "./CHANGELOG.md"
-
-let version () =
-  let f = open_in file in
-  try
-    input_line f
-  with e ->
-    close_in_noerr f;
-    raise e
-
 let date () = 
   let date = Unix.localtime (Unix.time ()) in
   let day = date.tm_mday
@@ -29,7 +19,7 @@ let date () =
 
 let get () =
   {
-    version = version ();
+    version = Version.version;
     date = date ();
     url = "https://github.com/PedroGasparinho/Cameleer2Html";
     name = "Cameleer2Html"

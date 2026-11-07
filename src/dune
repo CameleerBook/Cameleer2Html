@@ -1,3 +1,10 @@
 (library
  (name html_lib)
  (libraries unix))
+
+(rule
+ (target version.ml)
+ (deps ../CHANGELOG.md gen_version.sh)
+ (action
+  (with-stdout-to %{target}
+   (run sh %{dep:gen_version.sh} %{dep:../CHANGELOG.md}))))
