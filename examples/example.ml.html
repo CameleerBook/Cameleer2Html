@@ -1,0 +1,290 @@
+<!DOCTYPE html><head><link rel="stylesheet" href="index.css"><title>Example</title></head><body><div class="title"><h2>Example</h2></div><pre>
+<span class="number">1</span> <span class="comment">(* Implementation and specification by Pedro Gasparinho, advised by 
+<span class="number">2</span>    Mário Pereira *)</span>
+<span class="number">3</span> 
+<span class="number">4</span> <span class="keyword">module</span> <span class="keyword">type</span> LL = <span class="keyword">sig</span>
+<span class="number">5</span> 
+<span class="number">6</span>   <span class="keyword">type</span> elt
+<span class="number">7</span>   <span class="keyword">type</span> llist
+<span class="number">8</span> 
+<span class="number">9</span>   <span class="contract">(*@ <span class="logical">function</span> len (l: llist) : <span class="logical">int</span> *)</span>
+<span class="number">10</span> 
+<span class="number">11</span>   <span class="keyword">val</span> length : llist -&gt; <span class="keyword">int</span>
+<span class="number">12</span>   <span class="contract">(*@ r = length l
+<span class="number">13</span>       <span class="logical">ensures</span> r = len l *)</span>
+<span class="number">14</span> 
+<span class="number">15</span>   <span class="keyword">val</span> is_empty : llist -&gt; <span class="keyword">bool</span> [@@logic]
+<span class="number">16</span>   <span class="contract">(*@ r = is_empty l 
+<span class="number">17</span>       <span class="logical">ensures</span> r &lt;-&gt; len l = 0 *)</span>
+<span class="number">18</span> 
+<span class="number">19</span>   <span class="keyword">val</span> get : llist -&gt; <span class="keyword">int</span> -&gt; elt [@@logic]
+<span class="number">20</span>   <span class="contract">(*@ r = get l n
+<span class="number">21</span>       <span class="logical">requires</span> 0 &lt;= n &lt; len l *)</span>
+<span class="number">22</span> 
+<span class="number">23</span>   <span class="contract">(*@ <span class="logical">function</span> mem (x: elt) (l: llist) : <span class="logical">bool</span> *)</span>
+<span class="number">24</span> 
+<span class="number">25</span>   <span class="keyword">val</span> mem' : elt -&gt; llist -&gt; <span class="keyword">bool</span>
+<span class="number">26</span>   <span class="contract">(*@ r = mem x l
+<span class="number">27</span>       <span class="logical">ensures</span> r &lt;-&gt; mem x l *)</span>
+<span class="number">28</span> 
+<span class="number">29</span>   <span class="contract">(*@ <span class="logical">predicate</span> reversed (l1 l2: llist) *)</span>
+<span class="number">30</span> 
+<span class="number">31</span> 	<span class="contract">(*@ <span class="logical">axiom</span> reversed_length :
+<span class="number">32</span> 			<span class="logical">forall</span> l1 l2: llist. reversed l1 l2 -&gt; len l1 = len l2 *)</span>
+<span class="number">33</span> 
+<span class="number">34</span> 	<span class="contract">(*@ <span class="logical">axiom</span> reversed_elems :
+<span class="number">35</span> 	    <span class="logical">forall</span> l1 l2: llist. reversed l1 l2 -&gt;
+<span class="number">36</span> 				<span class="logical">forall</span> i. 0 &lt;= i &lt; len l1 -&gt; 
+<span class="number">37</span> 					get l1 i = get l2 (len l1 - 1 - i) *)</span>
+<span class="number">38</span> 
+<span class="number">39</span>   <span class="keyword">val</span> rev : llist -&gt; llist
+<span class="number">40</span>   <span class="contract">(*@ r = rev l
+<span class="number">41</span>       <span class="logical">ensures</span> reversed r l *)</span>
+<span class="number">42</span> 
+<span class="number">43</span>   <span class="contract">(*@ <span class="logical">predicate</span> appended (r l1 l2: llist) *)</span>
+<span class="number">44</span> 
+<span class="number">45</span> 	<span class="contract">(*@ <span class="logical">axiom</span> appended_length : 
+<span class="number">46</span> 			<span class="logical">forall</span> r l1 l2: llist. appended r l1 l2 -&gt;
+<span class="number">47</span> 				len r = len l1 + len l2 *)</span>
+<span class="number">48</span> 
+<span class="number">49</span> 	<span class="contract">(*@ <span class="logical">axiom</span> appended_order : 
+<span class="number">50</span> 			<span class="logical">forall</span> r l1 l2: llist. appended r l1 l2 -&gt;
+<span class="number">51</span>         <span class="logical">forall</span> i. 0 &lt;= i &lt; len l1 -&gt; get r i = get l1 i &amp;&amp;
+<span class="number">52</span>         <span class="logical">forall</span> i. len l1 &lt;= i &lt; len l1 + len l2 -&gt;
+<span class="number">53</span>           get r i = get l2 (i - len l1) *)</span>
+<span class="number">54</span> 
+<span class="number">55</span>   <span class="keyword">val</span> append : llist -&gt; llist -&gt; llist
+<span class="number">56</span>   <span class="contract">(*@ r = append l1 l2
+<span class="number">57</span>       <span class="logical">ensures</span> appended r l1 l2 *)</span>
+<span class="number">58</span> 
+<span class="number">59</span> 	<span class="keyword">val</span> map : (elt -&gt; elt) -&gt; llist -&gt; llist
+<span class="number">60</span> 	<span class="contract">(*@ r = map f l
+<span class="number">61</span> 			<span class="logical">ensures</span> len r = len l
+<span class="number">62</span> 			<span class="logical">ensures</span> <span class="logical">forall</span> i. 0 &lt;= i &lt; len l -&gt; (f (get l i)) = (get r i) *)</span>
+<span class="number">63</span> 
+<span class="number">64</span>   <span class="contract">(*@ <span class="logical">predicate</span> filtered (f: elt -&gt; <span class="logical">bool</span>) (r l: llist) *)</span>
+<span class="number">65</span> 
+<span class="number">66</span> 	<span class="contract">(*@ <span class="logical">axiom</span> filtered_length : 
+<span class="number">67</span> 			<span class="logical">forall</span> f: (elt -&gt; <span class="logical">bool</span>), r l: llist. filtered f r l -&gt;
+<span class="number">68</span> 				0 &lt;= len r &lt;= len l *)</span>
+<span class="number">69</span> 
+<span class="number">70</span> 	<span class="contract">(*@ <span class="logical">axiom</span> filtered_valid :
+<span class="number">71</span> 			<span class="logical">forall</span> f: (elt -&gt; <span class="logical">bool</span>), r l: llist. filtered f r l -&gt;
+<span class="number">72</span> 				<span class="logical">forall</span> x: elt. mem x r -&gt; f x *)</span>
+<span class="number">73</span> 
+<span class="number">74</span>   <span class="contract">(*@ <span class="logical">axiom</span> filtered_relative_pos : 
+<span class="number">75</span>       <span class="logical">forall</span> f: (elt -&gt; <span class="logical">bool</span>), r l: llist. filtered f r l -&gt;
+<span class="number">76</span>         <span class="logical">forall</span> i j. 0 &lt;= i &lt;= j &lt; len r -&gt; 
+<span class="number">77</span> 				<span class="logical">exists</span> i' j'. i &lt;= i' &lt;= j' &lt; len l -&gt;
+<span class="number">78</span> 				  (get r i) = (get l i') &amp;&amp; (get r j) = (get l j') *)</span>
+<span class="number">79</span> 
+<span class="number">80</span> 	<span class="keyword">val</span> filter : (elt -&gt; <span class="keyword">bool</span>) -&gt; llist -&gt; llist
+<span class="number">81</span> 	<span class="contract">(*@ r = filter f l
+<span class="number">82</span> 			<span class="logical">ensures</span> filtered f r l *)</span>
+<span class="number">83</span> 
+<span class="number">84</span>   <span class="keyword">val</span> init : <span class="keyword">int</span> -&gt; (<span class="keyword">int</span> -&gt; elt) -&gt; llist
+<span class="number">85</span>   <span class="contract">(*@ r = init s f
+<span class="number">86</span>       <span class="logical">requires</span> s &gt;= 0
+<span class="number">87</span>       <span class="logical">ensures</span> len r = s
+<span class="number">88</span>       <span class="logical">ensures</span> <span class="logical">forall</span> k. 0 &lt;= k &lt; s -&gt; (get r k) = (f k) *)</span>
+<span class="number">89</span> 
+<span class="number">90</span> <span class="keyword">end</span>
+<span class="number">91</span> 
+<span class="number">92</span> <span class="keyword">module</span> <span class="keyword">type</span> ComparableType = <span class="keyword">sig</span>
+<span class="number">93</span> 	<span class="keyword">type</span> t
+<span class="number">94</span> 
+<span class="number">95</span> 	<span class="keyword">val</span> eq: t -&gt; t -&gt; <span class="keyword">bool</span> [@@logic]
+<span class="number">96</span> 	<span class="contract">(*@ b = eq x y
+<span class="number">97</span> 		<span class="logical">ensures</span> b &lt;-&gt; x = y *)</span>
+<span class="number">98</span> <span class="keyword">end</span>
+<span class="number">99</span> 
+<span class="number">100</span> <span class="keyword">module</span> LinkedList (E: ComparableType) : LL = <span class="keyword">struct</span>
+<span class="number">101</span> 
+<span class="number">102</span>   <span class="keyword">type</span> elt = E.t
+<span class="number">103</span>   <span class="keyword">type</span> llist = Nil | Cons <span class="keyword">of</span> elt * llist
+<span class="number">104</span> 
+<span class="number">105</span>   <span class="contract">(*@ <span class="logical">function</span> <span class="logical">rec</span> len (l: llist) : <span class="logical">int</span> =
+<span class="number">106</span>       <span class="logical">match</span> l <span class="logical">with</span>
+<span class="number">107</span>       | Nil -&gt; 0
+<span class="number">108</span>       | Cons _ t -&gt; 1 + len t *)</span>
+<span class="number">109</span>   <span class="contract">(*@ <span class="logical">variant</span> l 
+<span class="number">110</span>       <span class="logical">ensures</span> l = Nil &lt;-&gt; result = 0
+<span class="number">111</span>       <span class="logical">ensures</span> l &lt;&gt; Nil &lt;-&gt; result &gt; 0 *)</span>
+<span class="number">112</span> 
+<span class="number">113</span>   <span class="keyword">let</span> length l = 
+<span class="number">114</span>     <span class="keyword">let</span> <span class="keyword">rec</span> aux c = <span class="keyword">function</span>
+<span class="number">115</span>       | Nil -&gt; c
+<span class="number">116</span>       | Cons (_, t) -&gt; aux (c+1) t
+<span class="number">117</span>     <span class="contract">(*@ r = aux c s
+<span class="number">118</span>         <span class="logical">variant</span> s
+<span class="number">119</span>         <span class="logical">ensures</span> c + len s = r *)</span>
+<span class="number">120</span>     <span class="keyword">in</span> aux 0 l
+<span class="number">121</span>   <span class="contract">(*@ r = len l
+<span class="number">122</span>       <span class="logical">ensures</span> r = len l *)</span>
+<span class="number">123</span> 
+<span class="number">124</span>   <span class="keyword">let</span>[@logic] is_empty = <span class="keyword">function</span>
+<span class="number">125</span>     | Nil -&gt; <span class="keyword">true</span>
+<span class="number">126</span>     | _ -&gt; <span class="keyword">false</span>
+<span class="number">127</span>   <span class="contract">(*@ r = is_empty l 
+<span class="number">128</span>       <span class="logical">ensures</span> r &lt;-&gt; l = Nil *)</span>
+<span class="number">129</span> 
+<span class="number">130</span>   <span class="keyword">let</span>[@logic] <span class="keyword">rec</span> get l n = 
+<span class="number">131</span>     <span class="keyword">match</span> l <span class="keyword">with</span>
+<span class="number">132</span>     | Nil -&gt; <span class="keyword">assert</span> <span class="keyword">false</span>
+<span class="number">133</span>     | Cons (h, t) -&gt; 
+<span class="number">134</span>       <span class="keyword">if</span> n = 0 <span class="keyword">then</span> h 
+<span class="number">135</span>       <span class="keyword">else</span> get t (n-1)
+<span class="number">136</span>   <span class="contract">(*@ r = get l n
+<span class="number">137</span>       <span class="logical">variant</span> n
+<span class="number">138</span>       <span class="logical">requires</span> 0 &lt;= n &lt; len l *)</span>
+<span class="number">139</span> 
+<span class="number">140</span>   <span class="contract">(*@ <span class="logical">function</span> <span class="logical">rec</span> mem (x: elt) (l: llist) : <span class="logical">bool</span> =
+<span class="number">141</span>       <span class="logical">match</span> l <span class="logical">with</span>
+<span class="number">142</span>       | Nil -&gt; <span class="logical">false</span>
+<span class="number">143</span>       | Cons h t -&gt; E.eq h x || mem x t *)</span>
+<span class="number">144</span>   <span class="contract">(*@ <span class="logical">variant</span> l *)</span>
+<span class="number">145</span> 
+<span class="number">146</span>   <span class="keyword">let</span>[@logic] mem' x l =
+<span class="number">147</span>     <span class="keyword">let</span> <span class="keyword">rec</span> aux x = <span class="keyword">function</span>
+<span class="number">148</span>       | Nil -&gt; <span class="keyword">false</span>
+<span class="number">149</span>       | Cons (h, t) -&gt; 
+<span class="number">150</span>         <span class="keyword">if</span> E.eq h x <span class="keyword">then</span> <span class="keyword">true</span>
+<span class="number">151</span>         <span class="keyword">else</span> aux x t
+<span class="number">152</span>     <span class="contract">(*@ r = aux x l'
+<span class="number">153</span>         <span class="logical">variant</span> l'
+<span class="number">154</span>         <span class="logical">ensures</span> r &lt;-&gt; mem x l' *)</span>
+<span class="number">155</span>     <span class="keyword">in</span> aux x l
+<span class="number">156</span>   <span class="contract">(*@ r = mem' x l
+<span class="number">157</span>       <span class="logical">ensures</span> r &lt;-&gt; mem x l *)</span>
+<span class="number">158</span> 
+<span class="number">159</span>   <span class="contract">(*@ <span class="logical">predicate</span> reversed_sub (r s: llist) = 
+<span class="number">160</span>       len s &lt;= len r &amp;&amp;
+<span class="number">161</span>       <span class="logical">forall</span> i. 0 &lt;= i &lt; len s -&gt; 
+<span class="number">162</span>         (get r i) = (get s (len s - 1 - i)) *)</span>
+<span class="number">163</span> 
+<span class="number">164</span>   <span class="contract">(*@ <span class="logical">predicate</span> valid_accumulator (r acc s: llist) =
+<span class="number">165</span>       len r = len acc + len s &amp;&amp;
+<span class="number">166</span>       <span class="logical">forall</span> i. len s &lt;= i &lt; len r -&gt; 
+<span class="number">167</span>         (get r i) = (get acc (i - len s)) *)</span>
+<span class="number">168</span>     
+<span class="number">169</span>   <span class="contract">(*@ <span class="logical">predicate</span> reversed (l1 l2: llist) = 
+<span class="number">170</span>       len l1 = len l2 &amp;&amp; 
+<span class="number">171</span>       <span class="logical">forall</span> i. 0 &lt;= i &lt; len l1 -&gt; 
+<span class="number">172</span>         get l1 i = get l2 (len l1 - 1 - i) *)</span>
+<span class="number">173</span> 
+<span class="number">174</span>   <span class="keyword">let</span>[@logic] rev l =
+<span class="number">175</span>     <span class="keyword">let</span> <span class="keyword">rec</span> aux acc = <span class="keyword">function</span>
+<span class="number">176</span>       | Nil -&gt; acc
+<span class="number">177</span>       | Cons (h, t) -&gt; aux (Cons (h, acc)) t
+<span class="number">178</span>     <span class="contract">(*@ r = aux acc s
+<span class="number">179</span>         <span class="logical">ensures</span> len r = len acc + len s 
+<span class="number">180</span>         <span class="logical">ensures</span> reversed_sub r s
+<span class="number">181</span>         <span class="logical">ensures</span> valid_accumulator r acc s
+<span class="number">182</span>         <span class="logical">variant</span> s *)</span>
+<span class="number">183</span>     <span class="keyword">in</span> aux Nil l
+<span class="number">184</span>   <span class="contract">(*@ r = rev l
+<span class="number">185</span>       <span class="logical">ensures</span> reversed r l *)</span>
+<span class="number">186</span> 
+<span class="number">187</span>   <span class="contract">(*@ <span class="logical">predicate</span> appended_sub (r s1: llist) =
+<span class="number">188</span>       len s1 &lt;= len r &amp;&amp;
+<span class="number">189</span>       <span class="logical">forall</span> i. 0 &lt;= i &lt; len s1 -&gt; 
+<span class="number">190</span>         get r i = get s1 (len s1 - 1 - i) *)</span>
+<span class="number">191</span> 
+<span class="number">192</span>   <span class="contract">(*@ <span class="logical">predicate</span> appended_right (r l1 l2: llist) = 
+<span class="number">193</span>       <span class="logical">forall</span> i. len l1 &lt;= i &lt; len l1 + len l2 -&gt;
+<span class="number">194</span>         get r i = get l2 (i - len l1) *)</span>
+<span class="number">195</span> 
+<span class="number">196</span>   <span class="contract">(*@ <span class="logical">predicate</span> appended (r l1 l2: llist) =
+<span class="number">197</span>       len r = len l1 + len l2 &amp;&amp;
+<span class="number">198</span>       <span class="logical">forall</span> i. 0 &lt;= i &lt; len l1 -&gt; get r i = get l1 i &amp;&amp;
+<span class="number">199</span>       appended_right r l1 l2 *)</span>
+<span class="number">200</span> 
+<span class="number">201</span>   <span class="keyword">let</span>[@logic] append l1 l2 =
+<span class="number">202</span>     <span class="keyword">let</span> <span class="keyword">rec</span> aux s1 s2 =
+<span class="number">203</span>       <span class="keyword">match</span> s1 <span class="keyword">with</span>
+<span class="number">204</span>       | Nil -&gt; s2
+<span class="number">205</span>       | Cons (h, t) -&gt; aux t (Cons (h, s2)) 
+<span class="number">206</span>     <span class="contract">(*@ r = aux s1 s2
+<span class="number">207</span>         <span class="logical">variant</span> s1
+<span class="number">208</span>         <span class="logical">ensures</span> len r = len s1 + len s2
+<span class="number">209</span>         <span class="logical">ensures</span> appended_sub r s1
+<span class="number">210</span>         <span class="logical">ensures</span> appended_right r s1 s2 *)</span>
+<span class="number">211</span>     <span class="keyword">in</span> <span class="keyword">let</span> r1 = rev l1 <span class="keyword">in</span> aux r1 l2
+<span class="number">212</span>   <span class="contract">(*@ r = append l1 l2
+<span class="number">213</span>       <span class="logical">ensures</span> appended r l1 l2 *)</span>
+<span class="number">214</span> 
+<span class="number">215</span>   <span class="contract">(*@ <span class="logical">predicate</span> mapped_sub (f: elt -&gt; elt) (r s: llist) = 
+<span class="number">216</span>       len s &lt;= len r &amp;&amp;
+<span class="number">217</span>       <span class="logical">forall</span> i. 0 &lt;= i &lt; len s -&gt; 
+<span class="number">218</span>         (get r i) = (f (get s (len s - 1 - i))) *)</span>
+<span class="number">219</span> 
+<span class="number">220</span> 	<span class="keyword">let</span> map f l =
+<span class="number">221</span> 	<span class="keyword">let</span> <span class="keyword">rec</span> aux acc f = <span class="keyword">function</span>
+<span class="number">222</span> 		| Nil -&gt; acc
+<span class="number">223</span> 			| Cons (h, t) -&gt; aux (Cons (f h, acc)) f t
+<span class="number">224</span> 		<span class="contract">(*@ r = aux acc f s
+<span class="number">225</span> 				<span class="logical">variant</span> s
+<span class="number">226</span> 				<span class="logical">ensures</span> len r = len acc + len s
+<span class="number">227</span>         <span class="logical">ensures</span> mapped_sub f r s
+<span class="number">228</span>         <span class="logical">ensures</span> valid_accumulator r acc s *)</span>
+<span class="number">229</span> 		<span class="keyword">in</span> <span class="keyword">let</span> l' = rev l <span class="keyword">in</span> aux Nil f l'	
+<span class="number">230</span> 	<span class="contract">(*@ r = map f l
+<span class="number">231</span> 			<span class="logical">ensures</span> len r = len l
+<span class="number">232</span> 			<span class="logical">ensures</span> <span class="logical">forall</span> i. 0 &lt;= i &lt; len l -&gt; (f (get l i)) = (get r i) *)</span>
+<span class="number">233</span> 
+<span class="number">234</span>   <span class="contract">(*@ <span class="logical">predicate</span> filtered_relative_order (r l: llist) = 
+<span class="number">235</span>       <span class="logical">forall</span> i j. 0 &lt;= i &lt;= j &lt; len r -&gt; 
+<span class="number">236</span> 				<span class="logical">exists</span> i' j'. i &lt;= i' &lt;= j' &lt; len l -&gt;
+<span class="number">237</span> 				(get r i) = (get l i') &amp;&amp; (get r j) = (get l j') *)</span>
+<span class="number">238</span> 
+<span class="number">239</span>   <span class="contract">(*@ <span class="logical">predicate</span> filtered_sub (f: elt -&gt; <span class="logical">bool</span>) (r acc s: llist) =
+<span class="number">240</span>       0 &lt;= len r &lt;= len acc + len s &amp;&amp;
+<span class="number">241</span>       <span class="logical">forall</span> x: elt. mem x r -&gt; f x &amp;&amp;
+<span class="number">242</span>       filtered_relative_order r s *)</span>
+<span class="number">243</span> 
+<span class="number">244</span>   <span class="contract">(*@ <span class="logical">predicate</span> filtered (f: elt -&gt; <span class="logical">bool</span>) (r l: llist) = 
+<span class="number">245</span>       0 &lt;= len r &lt;= len l &amp;&amp;
+<span class="number">246</span>       <span class="logical">forall</span> x: elt. mem x r -&gt; f x &amp;&amp;
+<span class="number">247</span>       filtered_relative_order r l *)</span>
+<span class="number">248</span> 
+<span class="number">249</span> 	<span class="keyword">let</span> filter f l =
+<span class="number">250</span> 		<span class="keyword">let</span> <span class="keyword">rec</span> aux acc f = <span class="keyword">function</span>
+<span class="number">251</span> 			| Nil -&gt; acc
+<span class="number">252</span> 			| Cons (h, t) -&gt; 
+<span class="number">253</span> 				<span class="keyword">if</span> f h <span class="keyword">then</span> aux (Cons (h, acc)) f t
+<span class="number">254</span> 				<span class="keyword">else</span> aux acc f t 
+<span class="number">255</span> 		<span class="contract">(*@ r = aux acc f s 
+<span class="number">256</span> 				<span class="logical">variant</span> s
+<span class="number">257</span> 				<span class="logical">requires</span> <span class="logical">forall</span> x: elt. mem x acc -&gt; f x
+<span class="number">258</span> 				<span class="logical">ensures</span> filtered_sub f r acc s *)</span>	
+<span class="number">259</span> 		<span class="keyword">in</span> <span class="keyword">let</span> l' = rev l <span class="keyword">in</span> aux Nil f l'
+<span class="number">260</span> 	<span class="contract">(*@ r = filter f l
+<span class="number">261</span> 			<span class="logical">ensures</span> filtered f r l *)</span>
+<span class="number">262</span> 
+<span class="number">263</span>   <span class="keyword">let</span> init s f =
+<span class="number">264</span>     <span class="keyword">let</span> <span class="keyword">rec</span> aux acc n f =
+<span class="number">265</span>       <span class="keyword">if</span> n = 0 <span class="keyword">then</span> acc
+<span class="number">266</span>       <span class="keyword">else</span> aux (Cons (f (n-1), acc)) (n-1) f
+<span class="number">267</span>     <span class="contract">(*@ r = aux acc n f
+<span class="number">268</span>         <span class="logical">variant</span> n
+<span class="number">269</span>         <span class="logical">requires</span> 0 &lt;= n &lt;= s
+<span class="number">270</span>         <span class="logical">requires</span> s = len acc + n 
+<span class="number">271</span>         <span class="logical">requires</span> <span class="logical">forall</span> k. 0 &lt;= k &lt; len acc -&gt; (get acc k) = (f (k+n))
+<span class="number">272</span>         <span class="logical">ensures</span> len r = len acc + n
+<span class="number">273</span>         <span class="logical">ensures</span> <span class="logical">forall</span> k. 0 &lt;= k &lt; len r -&gt; (get r k) = (f k) *)</span>
+<span class="number">274</span>     <span class="keyword">in</span> aux Nil s f
+<span class="number">275</span>   <span class="contract">(*@ r = init s f
+<span class="number">276</span>       <span class="logical">requires</span> s &gt;= 0
+<span class="number">277</span>       <span class="logical">ensures</span> len r = s
+<span class="number">278</span>       <span class="logical">ensures</span> <span class="logical">forall</span> k. 0 &lt;= k &lt; s -&gt; (get r k) = (f k) *)</span>
+<span class="number">279</span> 
+<span class="number">280</span> <span class="keyword">end</span>
+<span class="number">281</span> 
+</pre>
+<div class="info">
+<p>This page was generated with <a href="https://github.com/PedroGasparinho/Cameleer2Html">Cameleer2Html</a><p>
+</div>
+<div class="metadata">
+<p>Version: # 1.1; Datetime: 2026-11-07 at 14:32:34</p>
+</div>
+</body></html>

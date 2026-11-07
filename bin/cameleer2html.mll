@@ -1,34 +1,22 @@
 {
-  let print_error s =
-    Printf.eprintf "error: %s\n" s;
-    exit 1
+  open Html_lib
 
-  let file = Sys.argv.(1)
-
-  let title = Sys.argv.(2)
-
-  let print_line_numbers = ref true
-
-  let () =
-    if not (Sys.file_exists file) then begin
-      print_error ("File not found: " ^ file)
-    end;
-    let num_args = Array.length Sys.argv in
-    if num_args = 4 then begin
-      print_line_numbers := bool_of_string Sys.argv.(3)
-    end else if num_args <> 3 then
-      print_error "Wrong number of arguments"
-
+  let file, title, print_line_numbers =
+    match Array.length Sys.argv with
+    | 3 -> Sys.argv.(1), Sys.argv.(2), true
+    | 4 ->
+        Sys.argv.(1),
+        Sys.argv.(2),
+        bool_of_string Sys.argv.(3)
+    | _ ->
+        Writer.error "Usage: main <file> <title> [line_numbers]"
+  
+  let print_line_numbers = ref print_line_numbers
   
   let cout = open_out (file ^ ".html")
   let print s = Printf.fprintf cout s
 
-  let () =
-    print "<!DOCTYPE html>";
-    print "<head><link rel=\"stylesheet\" href=\"index.css\"><title>%s</title></head>" title;
-    print "<body>";
-    print "<div class=\"title\"><h2>%s</h2></div>" title;
-    print "<pre>"
+  let () = Html_gen.preamble cout title
 
   let count = ref 0
   let newline () = 
@@ -118,17 +106,9 @@ and string = parse
   | _ as s { print "%s" s; string lexbuf }
 
 {
-  let url = "https://github.com/PedroGasparinho/Cameleer2Html"
-  let url_name = "Cameleer2Html"
-  let info_text = "This page was generated with "
-
   let () =
     scan (Lexing.from_channel (open_in file));
-    print "</pre>\n";
-    print "<div class=\"info\">\n";
-    print "<p>%s<a href=\"%s\">%s</a><p>\n" info_text url url_name;
-    print "</div>\n";
-    print "</body></html>\n";
-    close_out cout
-
+    Html_gen.postamble cout;
+    close_out cout;
+    Writer.info "Generated: %s\n" (file ^ ".html")
 }

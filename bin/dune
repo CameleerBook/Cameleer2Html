@@ -1,0 +1,5 @@
+(executable
+ (name cameleer2html)
+ (libraries html_lib))
+
+(ocamllex cameleer2html)

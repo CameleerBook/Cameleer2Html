@@ -123,3 +123,7 @@ pre {
   text-align: right;
   font-weight: normal;
 }
+
+.metadata {
+  display: none;
+}
