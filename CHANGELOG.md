@@ -1,3 +1,7 @@
+# 1.2
+
+- Improve CLI tooling
+
 # 1.1
 
 - Add dark mode CSS

@@ -1,26 +1,16 @@
 {
   open Html_lib
 
-  let file, title, print_line_numbers =
-    match Array.length Sys.argv with
-    | 3 -> Sys.argv.(1), Sys.argv.(2), true
-    | 4 ->
-        Sys.argv.(1),
-        Sys.argv.(2),
-        bool_of_string Sys.argv.(3)
-    | _ ->
-        Writer.error "Usage: main <file> <title> [line_numbers]"
+  let config = Cli.parse ()
   
-  let print_line_numbers = ref print_line_numbers
-  
-  let cout = open_out (file ^ ".html")
+  let cout = open_out config.output_file
   let print s = Printf.fprintf cout s
 
-  let () = Html_gen.preamble cout title
+  let () = Html_gen.preamble cout config.title
 
   let count = ref 0
   let newline () = 
-    if !print_line_numbers then begin
+    if config.line_numbers then begin
       incr count; print "\n<span class=\"number\">%d</span> " !count
     end
     else print "\n"
@@ -45,6 +35,12 @@
     List.iter (fun s -> Hashtbl.add ht s ()) keywords;
     fun s -> Hashtbl.mem ht s
 
+  let process_text = function
+    | "<" -> print "&lt;"
+    | ">" -> print "&gt;"
+    | "&" -> print "&amp;"
+    | "\n" -> newline ()
+    | _ as s -> print "%s" s
 }
 
 let ident = ['A'-'Z' 'a'-'z' '_'] ['A'-'Z' 'a'-'z' '0'-'9' '_']*
@@ -64,13 +60,9 @@ rule scan = parse
         print "<span class=\"keyword\">%s</span>" s
       end 
       else print "%s" s; scan lexbuf }
-  | "<"    { print "&lt;"; scan lexbuf }
-  | ">"    { print "&gt;"; scan lexbuf }
-  | "&"    { print "&amp;"; scan lexbuf }
-  | "\n"   { newline (); scan lexbuf }
   | '"'    { print "\""; string lexbuf; scan lexbuf }
   | "'\"'"
-  | _ as s { print "%s" s; scan lexbuf }
+  | _ as s { process_text s; scan lexbuf }
 and contract = parse
   | "*)"   { print "*)" }
   | eof    { () }
@@ -79,36 +71,25 @@ and contract = parse
         print "<span class=\"logical\">%s</span>" s
       end 
       else print "%s" s; contract lexbuf }
-  | "\n"   { newline (); contract lexbuf }
   | '"'    { print "\""; string lexbuf; contract lexbuf }
-  | "<"    { print "&lt;"; contract lexbuf }
-  | ">"    { print "&gt;"; contract lexbuf }
-  | "&"    { print "&amp;"; contract lexbuf }
   | "'\"'"
-  | _ as s { print "%s" s; contract lexbuf }
+  | _ as s { process_text s; contract lexbuf }
 and comment = parse
   | "(*"   { print "(*"; comment lexbuf; comment lexbuf }
   | "*)"   { print "*)" }
   | eof    { () }
-  | "\n"   { newline (); comment lexbuf }
   | '"'    { print "\""; string lexbuf; comment lexbuf }
-  | "<"    { print "&lt;"; comment lexbuf }
-  | ">"    { print "&gt;"; comment lexbuf }
-  | "&"    { print "&amp;"; comment lexbuf }
   | "'\"'"
-  | _ as s { print "%s" s; comment lexbuf }
+  | _ as s { process_text s; comment lexbuf }
 and string = parse
   | '"'    { print "\"" }
-  | "<"    { print "&lt;"; string lexbuf }
-  | ">"    { print "&gt;"; string lexbuf }
-  | "&"    { print "&amp;"; string lexbuf }
   | "\\" _
-  | _ as s { print "%s" s; string lexbuf }
+  | _ as s { process_text s; string lexbuf }
 
 {
   let () =
-    scan (Lexing.from_channel (open_in file));
+    scan (Lexing.from_channel (open_in config.input_file));
     Html_gen.postamble cout;
     close_out cout;
-    Writer.info "Generated: %s\n" (file ^ ".html")
+    Writer.info "Generated: %s\n" config.output_file
 }
