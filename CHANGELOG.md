@@ -1,3 +1,9 @@
+# 1.3
+
+- Add input file validation
+- Download .ml file
+- Linkable line numbers
+
 # 1.2
 
 - Improve CLI tooling

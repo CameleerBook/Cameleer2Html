@@ -49,12 +49,18 @@ title use on the HTML header is `<file.ml>`.
 
 Optional flags:
 - `-l` - prints line numbers.
-- `-o <file>` - chooses the output file name (and location). The `.html` extension is optional.
+<!-- - `-o <file>` - chooses the output file name (and location). The `.html` extension is optional. -->
 - `-t <title>` - sets the title used on the generated HTML header.
 
 Advanced usage example:
+<!--
 ```
 $ cameleer2html <file.ml> -l -o <output_file> -t <title>
+```
+-->
+
+```
+$ cameleer2html <file.ml> -l -t <title>
 ```
 
 ## Usage (Developer)

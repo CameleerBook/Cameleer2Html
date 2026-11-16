@@ -57,6 +57,9 @@ body {
   max-width: 1000px;
   margin: 0 auto;
   border-bottom: 1px solid var(--heading-border);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .title h2 {
@@ -122,6 +125,11 @@ pre {
   user-select: none;
   text-align: right;
   font-weight: normal;
+}
+
+.number > a {
+  text-decoration: none;
+  color: inherit;
 }
 
 .metadata {

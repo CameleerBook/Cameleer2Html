@@ -6,14 +6,17 @@
   let cout = open_out config.output_file
   let print s = Printf.fprintf cout s
 
-  let () = Html_gen.preamble cout config.title
+  let extract_relative_name f =
+    let s = String.split_on_char '/' f in
+    List.nth s (List.length s - 1)
+
+  let () = 
+    let input_file = extract_relative_name config.input_file in
+    Html_gen.preamble cout input_file config.title
 
   let count = ref 0
-  let newline () = 
-    if config.line_numbers then begin
-      incr count; print "\n<span class=\"number\">%d</span> " !count
-    end
-    else print "\n"
+  let newline () = Html_gen.newline cout count config.line_numbers
+
   let () = newline ()
 
   let keywords = [ "and"; "as"; "assert"; "asr"; "class"; "closed"; 
@@ -36,11 +39,11 @@
     fun s -> Hashtbl.mem ht s
 
   let process_text = function
-    | "<" -> print "&lt;"
-    | ">" -> print "&gt;"
-    | "&" -> print "&amp;"
+    | "<" -> Html_gen.write_text cout "&lt;"
+    | ">" -> Html_gen.write_text cout "&gt;"
+    | "&" -> Html_gen.write_text cout "&amp;"
     | "\n" -> newline ()
-    | _ as s -> print "%s" s
+    | _ as s -> Html_gen.write_text cout s
 }
 
 let ident = ['A'-'Z' 'a'-'z' '_'] ['A'-'Z' 'a'-'z' '0'-'9' '_']*
@@ -59,30 +62,31 @@ rule scan = parse
     { if is_keyword s then begin
         print "<span class=\"keyword\">%s</span>" s
       end 
-      else print "%s" s; scan lexbuf }
-  | '"'    { print "\""; string lexbuf; scan lexbuf }
+      else process_text s; scan lexbuf }
+  (* Cannot bind "\"" with 'as s' and it converts into a char *)
+  | "\"" { process_text "\""; string lexbuf; scan lexbuf }
   | "'\"'"
   | _ as s { process_text s; scan lexbuf }
 and contract = parse
-  | "*)"   { print "*)" }
+  | "*)" as s   { process_text s }
   | eof    { () }
   | ident as s
   { if is_keyword s then begin
         print "<span class=\"logical\">%s</span>" s
       end 
-      else print "%s" s; contract lexbuf }
-  | '"'    { print "\""; string lexbuf; contract lexbuf }
+      else process_text s; contract lexbuf }
+  | "\"" { process_text "\""; string lexbuf; contract lexbuf }
   | "'\"'"
   | _ as s { process_text s; contract lexbuf }
 and comment = parse
-  | "(*"   { print "(*"; comment lexbuf; comment lexbuf }
-  | "*)"   { print "*)" }
+  | "(*" as s   { process_text s; comment lexbuf; comment lexbuf }
+  | "*)" as s   { process_text s }
   | eof    { () }
-  | '"'    { print "\""; string lexbuf; comment lexbuf }
+  | "\"" { process_text "\""; string lexbuf; comment lexbuf }
   | "'\"'"
   | _ as s { process_text s; comment lexbuf }
 and string = parse
-  | '"'    { print "\"" }
+  | "\"" { process_text "\"" }
   | "\\" _
   | _ as s { process_text s; string lexbuf }
 
